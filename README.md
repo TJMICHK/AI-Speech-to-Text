@@ -9,3 +9,9 @@ Hold the BOOT button to record speech, release it to stop, and the ESP32 sends t
 The goal of this project is to develop a standalone, ESP32-based AI voice assistant capable of capturing speech, communicating with cloud-based AI services, and responding to the user through a speaker.
 
 This project will be interfaced with other AI features, such as AI vision.
+
+## Testing and debug
+
+See [TEST_DEBUG_PLAN.md](TEST_DEBUG_PLAN.md) for reproducible hardware, audio,
+Wi-Fi/API, latency, failure-recovery, and speaker-integration tests. The current
+production sketch does not yet implement MAX98357A playback.
