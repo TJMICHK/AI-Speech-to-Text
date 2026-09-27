@@ -123,8 +123,7 @@ it:
 5. Enter an invalid API key.
 6. Hold BOOT longer than 15 seconds.
 
-**Expected:** The device remains responsive, reports a useful error, and a later
-attempt can work without a power cycle. A held button stops at `MAX_SECONDS`.
+**Expected:** The device remains responsive and reports a useful error. For transient network/server cases, a later attempt can work without a power cycle; an invalid API key must continue to fail until the firmware configuration is corrected. A held button stops at `MAX_SECONDS`.
 
 **Known current risk:** `setup()` waits forever in the Wi-Fi loop, so case 1
 currently fails the recovery requirement until a bounded retry/reconnect state is
