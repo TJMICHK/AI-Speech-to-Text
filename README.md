@@ -14,6 +14,14 @@ Implemented in `CODES/CODESPACE/AI_STT_MAIN/AI_STT_MAIN.ino`:
 - BOOT-button recording with a 15-second maximum.
 - Transcript and diagnostic messages on serial at 115200 baud.
 
+This project will be interfaced with other AI features, such as AI vision.
+
+## Testing and debug
+
+See [TEST_DEBUG_PLAN.md](TEST_DEBUG_PLAN.md) for reproducible hardware, audio,
+Wi-Fi/API, latency, failure-recovery, and speaker-integration tests. The current
+production sketch does not yet implement MAX98357A playback.
+
 Not implemented in the current firmware:
 
 - MAX98357/MAX98357A amplifier output.
