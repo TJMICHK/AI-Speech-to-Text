@@ -91,8 +91,8 @@ With a known-good network, make five short recordings using the same phrase.
 Capture `[wifi]`, `[rec]`, `[stt]`, HTTP errors, and the final `You said:` line.
 
 **Expected:** Wi-Fi obtains an IP, each upload returns HTTP 200, `[stt]` is
-finite and normally below the project latency target, and the body is plain
-text without HTTP chunk-size markers.
+**Expected:** Wi-Fi obtains an IP, each upload returns HTTP 200, `[stt]` is finite and within the implemented 20 s response timeout, and the body is plain
+text without HTTP chunk-size markers. Define a numeric project latency target separately if this is to be a pass/fail criterion.
 
 **Failure clues:** HTTP 401/403 means the key/configuration; 429 means rate
 limiting; 5xx or connect failure means network/service path. Chunk-size strings
