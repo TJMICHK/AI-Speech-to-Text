@@ -16,6 +16,12 @@ Implemented in `CODES/CODESPACE/AI_STT_MAIN/AI_STT_MAIN.ino`:
 
 This project will be interfaced with other AI features, such as AI vision.
 
+## Firmware architecture
+
+The checked-in main sketch is an ESP32-S3/Groq proof of concept and is not yet the production firmware for the original ESP32-S 38-pin CP2102 board. The hardware, audio, buffering, playback, and secure backend baseline is documented in [docs/firmware-architecture.md](docs/firmware-architecture.md).
+
+Provider API keys must remain on the backend and must never be compiled into device firmware.
+
 ## Testing and debug
 
 See [TEST_DEBUG_PLAN.md](TEST_DEBUG_PLAN.md) for reproducible hardware, audio,
