@@ -51,8 +51,6 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ESP_I2S.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
 #include "AI_STT_CONFIG.h"          // SEED_WIFI_SSID, SEED_WIFI_PASS, SEED_GROQ_KEY
 
 static I2SClass        mic;
@@ -299,73 +297,6 @@ static bool transcribe(String *text) {
   return body.length() > 0;
 }
 
-// BELOW IS THE CHATGPT AI CODE
-
-String askChatGPT(const String& transcription) {
-  WiFiClientSecure client;
-  client.setInsecure();  // Prototype only
-
-  HTTPClient https;
-  https.begin(client, "https://api.openai.com/v1/responses");
-
-  https.addHeader("Content-Type", "application/json");
-  https.addHeader("Authorization",
-                 String("Bearer ") + OPENAI_API_KEY);
-
-  JsonDocument request;
-  request["model"] = OPENAI_MODEL;
-  request["instructions"] =
-      "Answer clearly and briefly for a voice assistant.";
-  request["input"] = transcription;
-
-  String requestBody;
-  serializeJson(request, requestBody);
-
-  int statusCode = https.POST(requestBody);
-  String responseBody = https.getString();
-
-  if (statusCode < 200 || statusCode >= 300) {
-    Serial.printf("OpenAI error: %d\n%s\n",
-                  statusCode, responseBody.c_str());
-    https.end();
-    return "";
-  }
-
-  JsonDocument response;
-  DeserializationError error =
-      deserializeJson(response, responseBody);
-
-  if (error) {
-    Serial.println("Could not parse OpenAI response");
-    https.end();
-    return "";
-  }
-
-  String answer = "";
-
-  JsonArray output = response["output"].as<JsonArray>();
-
-  for (JsonObject item : output) {
-    if (item["type"] == "message") {
-      JsonArray content = item["content"].as<JsonArray>();
-
-      for (JsonObject part : content) {
-        if (part["type"] == "output_text") {
-          answer = part["text"].as<String>();
-          break;
-        }
-      }
-    }
-
-    if (answer.length() > 0) {
-      break;
-    }
-  }
-
-  https.end();
-  return answer;
-}
-
 
 void setup() {
   Serial.begin(115200);
@@ -412,11 +343,6 @@ void loop() {
     delay(5000);
     digitalWrite(LIGHT_PIN, LOW);
   }
-
-  String answer = askChatGPT(lastTranscript);
-
-  Serial.println("Assistant response:");
-  Serial.println(answer);
 
   while (digitalRead(PIN_BUTTON) == LOW) delay(10);            // wait for release
 }

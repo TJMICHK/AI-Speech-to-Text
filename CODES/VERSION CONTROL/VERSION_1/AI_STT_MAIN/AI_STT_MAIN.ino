@@ -51,16 +51,11 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ESP_I2S.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
 #include "AI_STT_CONFIG.h"          // SEED_WIFI_SSID, SEED_WIFI_PASS, SEED_GROQ_KEY
 
 static I2SClass        mic;
 static WiFiClientSecure net;
 static bool            micOk = false;
-// Holds the most recent successful transcription for later assistant logic.
-static String          lastTranscript;
-static String lightCommand = "Turn on the light.";
 
 // Opens the TLS connection to Groq if it is not already up.
 //
@@ -299,82 +294,14 @@ static bool transcribe(String *text) {
   return body.length() > 0;
 }
 
-// BELOW IS THE CHATGPT AI CODE
-
-String askChatGPT(const String& transcription) {
-  WiFiClientSecure client;
-  client.setInsecure();  // Prototype only
-
-  HTTPClient https;
-  https.begin(client, "https://api.openai.com/v1/responses");
-
-  https.addHeader("Content-Type", "application/json");
-  https.addHeader("Authorization",
-                 String("Bearer ") + OPENAI_API_KEY);
-
-  JsonDocument request;
-  request["model"] = OPENAI_MODEL;
-  request["instructions"] =
-      "Answer clearly and briefly for a voice assistant.";
-  request["input"] = transcription;
-
-  String requestBody;
-  serializeJson(request, requestBody);
-
-  int statusCode = https.POST(requestBody);
-  String responseBody = https.getString();
-
-  if (statusCode < 200 || statusCode >= 300) {
-    Serial.printf("OpenAI error: %d\n%s\n",
-                  statusCode, responseBody.c_str());
-    https.end();
-    return "";
-  }
-
-  JsonDocument response;
-  DeserializationError error =
-      deserializeJson(response, responseBody);
-
-  if (error) {
-    Serial.println("Could not parse OpenAI response");
-    https.end();
-    return "";
-  }
-
-  String answer = "";
-
-  JsonArray output = response["output"].as<JsonArray>();
-
-  for (JsonObject item : output) {
-    if (item["type"] == "message") {
-      JsonArray content = item["content"].as<JsonArray>();
-
-      for (JsonObject part : content) {
-        if (part["type"] == "output_text") {
-          answer = part["text"].as<String>();
-          break;
-        }
-      }
-    }
-
-    if (answer.length() > 0) {
-      break;
-    }
-  }
-
-  https.end();
-  return answer;
-}
-
 
 void setup() {
   Serial.begin(115200);
   delay(400);
   Serial.println("\n\nSpeechToText - Groq Whisper");
   pinMode(PIN_BUTTON, INPUT_PULLUP);           // BOOT reads LOW when pressed
-  pinMode(LIGHT_PIN, OUTPUT);
 
-  WiFi.mode(WIFI_STA);;
+  WiFi.mode(WIFI_STA);
   WiFi.begin(SEED_WIFI_SSID, SEED_WIFI_PASS);
   Serial.print("[wifi] connecting");
   while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(300); }
@@ -400,23 +327,10 @@ void loop() {
 
   String text;
   if (transcribe(&text)) {
-    lastTranscript = text;
     Serial.println("-------------------------------------------");
-    Serial.printf("You said: %s\n", lastTranscript.c_str());
+    Serial.printf("You said: %s\n", text.c_str());
     Serial.println("-------------------------------------------\n");
   }
-
-  if (lastTranscript == lightCommand) {
-    digitalWrite(LIGHT_PIN, HIGH);
-    Serial.println("The light has turned on");
-    delay(5000);
-    digitalWrite(LIGHT_PIN, LOW);
-  }
-
-  String answer = askChatGPT(lastTranscript);
-
-  Serial.println("Assistant response:");
-  Serial.println(answer);
 
   while (digitalRead(PIN_BUTTON) == LOW) delay(10);            // wait for release
 }

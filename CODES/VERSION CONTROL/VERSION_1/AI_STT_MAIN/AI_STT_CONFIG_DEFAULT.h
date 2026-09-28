@@ -8,9 +8,6 @@
 #define SEED_WIFI_SSID "###"
 #define SEED_WIFI_PASS "###"
 
-#define OPENAI_API_KEY "###"
-#define OPENAI_MODEL "gpt-4o-mini"
-
 #define SAMPLE_RATE   16000   // Whisper's native rate; higher just wastes upload
 #define MAX_SECONDS   15      // hard stop, so a stuck button cannot record forever
 #define SILENCE_PEAK  300     // below this, treat the clip as silence

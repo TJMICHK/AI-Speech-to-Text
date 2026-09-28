@@ -1,0 +1,1 @@
+The goal of this test is to connect the ESP32 STT to ChatGPT using APIs. This test was a success.
